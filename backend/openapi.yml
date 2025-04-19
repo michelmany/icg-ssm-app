@@ -1,0 +1,2949 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Testing Nirvana API
+servers:
+  - url: api
+components:
+  responses:
+    GenericErrorResponse:
+      description: The request failed.
+      content:
+        application/json:
+          schema:
+            properties:
+              message:
+                type: string
+              code:
+                type: string
+              errors:
+                type: array
+                items:
+                  type: string
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phoneNumber:
+          type:
+            - string
+            - "null"
+        securityLevel:
+          type: string
+          enum:
+            - FULL_ACCESS
+            - LIMITED
+            - READ_ONLY
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+        school:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+          required:
+            - id
+            - name
+        role:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+          required:
+            - id
+            - name
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - phoneNumber
+        - securityLevel
+        - status
+        - school
+        - role
+        - createdAt
+        - updatedAt
+    Pagination:
+      type: object
+      properties:
+        pages:
+          type: number
+        total:
+          type: number
+      required:
+        - pages
+        - total
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+        - id
+        - name
+    UserWithPermissions:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phoneNumber:
+          type:
+            - string
+            - "null"
+        securityLevel:
+          type: string
+          enum:
+            - FULL_ACCESS
+            - LIMITED
+            - READ_ONLY
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+        role:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+          required:
+            - id
+            - name
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+            enum:
+              - MANAGE_USERS
+              - ASSIGN_ROLES
+              - DEACTIVATE_USERS
+              - RESET_PASSWORDS
+              - CONFIGURE_TEST_SITES
+              - SCHEDULE_TESTS
+              - ASSIGN_ACCOMMODATIONS
+              - TRACK_STUDENT_CONFIRMATIONS
+              - MANAGE_EQUIPMENT
+              - MANAGE_TESTS
+              - ASSIGN_STUDENTS
+              - TRACK_ATTENDANCE
+              - SEND_REMINDERS
+              - VIEW_REPORTS
+              - SCAN_QR_CODES
+              - REPORT_INCIDENTS
+              - CONFIRM_TEST_LOCATION
+              - VIEW_RESULT
+              - VIEW_INVOICES
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - phoneNumber
+        - securityLevel
+        - status
+        - role
+        - createdAt
+        - updatedAt
+        - permissions
+    School:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        district:
+          type: string
+        state:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        maxTravelDistance:
+          type: number
+        maxStudentsPerTest:
+          type: number
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - district
+        - state
+        - contactEmail
+        - maxTravelDistance
+        - maxStudentsPerTest
+        - createdAt
+        - updatedAt
+    Student:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dob:
+          type: string
+          format: date
+        gradeLevel:
+          type: number
+        school:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+          required:
+            - id
+            - name
+        parent:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+              format: email
+          required:
+            - id
+            - firstName
+            - lastName
+            - email
+        studentCode:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+        confirmationStatus:
+          type: string
+          enum:
+            - CONFIRMED
+            - PENDING
+            - RESCHEDULED
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        accommodations:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              name:
+                type: string
+              details: {}
+            required:
+              - id
+              - name
+        assignedTeachers:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              firstName:
+                type: string
+              lastName:
+                type: string
+            required:
+              - id
+              - firstName
+              - lastName
+        assignedTests:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - firstName
+        - lastName
+        - dob
+        - gradeLevel
+        - school
+        - parent
+        - studentCode
+        - status
+        - confirmationStatus
+        - createdAt
+        - updatedAt
+    Provider:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+              format: email
+          required:
+            - id
+            - firstName
+            - lastName
+            - email
+        licenseNumber:
+          type:
+            - string
+            - "null"
+        credentials:
+          type: string
+        signature:
+          type:
+            - string
+            - "null"
+        serviceFeeStructure:
+          type: string
+          enum:
+            - HOURLY
+            - FLAT_RATE
+            - PER_DIEM
+        nssEnabled:
+          type: boolean
+        reviewNotes:
+          type: object
+          properties:
+            notes:
+              type: string
+          required:
+            - notes
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - PENDING
+            - SUSPENDED
+          default: ACTIVE
+        documentIds:
+          type: array
+          items:
+            type: string
+        contractIds:
+          type: array
+          items:
+            type: string
+        contactIds:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - userId
+        - user
+        - licenseNumber
+        - credentials
+        - signature
+        - serviceFeeStructure
+        - nssEnabled
+        - reviewNotes
+        - documentIds
+        - contractIds
+        - contactIds
+        - createdAt
+        - updatedAt
+    Therapist:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        disciplines:
+          type: string
+        licenseNumber:
+          type: string
+        medicaidNationalProviderId:
+          type: number
+        socialSecurity:
+          type: string
+        stateMedicaidProviderId:
+          type: number
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - PENDING
+          default: ACTIVE
+        userId:
+          type: string
+          format: uuid
+        name:
+          type:
+            - string
+            - "null"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - disciplines
+        - licenseNumber
+        - medicaidNationalProviderId
+        - socialSecurity
+        - stateMedicaidProviderId
+        - userId
+        - name
+        - createdAt
+        - updatedAt
+    TherapyService:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        student:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            firstName:
+              type: string
+            lastName:
+              type: string
+          required:
+            - id
+            - firstName
+            - lastName
+        provider:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+              required:
+                - id
+                - firstName
+                - lastName
+                - email
+          required:
+            - id
+            - user
+        serviceType:
+          type: string
+          enum:
+            - SPEECH
+            - OCCUPATIONAL
+            - PHYSICAL
+        status:
+          type: string
+          enum:
+            - SCHEDULED
+            - COMPLETED
+            - MISSED
+        serviceBeginDate:
+          type: string
+        sessionDate:
+          type: string
+          format: date
+        sessionNotes:
+          type: string
+        deliveryMode:
+          type: string
+          enum:
+            - VIRTUAL
+            - IN_PERSON
+        goalTracking: {}
+        ieps: {}
+        nextMeetingDate:
+          type:
+            - string
+            - "null"
+          format: date
+        deletedAt:
+          type:
+            - string
+            - "null"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - student
+        - provider
+        - serviceType
+        - status
+        - serviceBeginDate
+        - sessionDate
+        - sessionNotes
+        - deliveryMode
+        - nextMeetingDate
+        - deletedAt
+        - createdAt
+        - updatedAt
+    Report:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        schoolId:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        therapyServiceId:
+          type: string
+          format: uuid
+        reportType:
+          type: string
+          enum:
+            - PROGRESS
+            - ATTENDANCE
+            - BILLING
+            - ELIGIBILITY
+        content:
+          type: string
+        createdAt:
+          type: string
+          default: 2025-03-27T21:45:09.629Z
+        updatedAt:
+          type: string
+        deletedAt:
+          type:
+            - string
+            - "null"
+        school:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+          required:
+            - id
+            - name
+        student:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            firstName:
+              type: string
+            lastName:
+              type: string
+          required:
+            - id
+            - firstName
+            - lastName
+        therapyService:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            serviceType:
+              type: string
+              enum:
+                - SPEECH
+                - OCCUPATIONAL
+                - PHYSICAL
+          required:
+            - id
+            - serviceType
+      required:
+        - id
+        - schoolId
+        - studentId
+        - therapyServiceId
+        - reportType
+        - content
+        - updatedAt
+        - deletedAt
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        providerId:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        therapyServiceId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        status:
+          type: string
+          enum:
+            - PENDING
+            - PAID
+            - DECLINED
+        dateIssued:
+          type:
+            - string
+            - "null"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        deletedAt:
+          type:
+            - string
+            - "null"
+        provider:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+              required:
+                - id
+                - firstName
+                - lastName
+                - email
+          required:
+            - id
+            - user
+        student:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            firstName:
+              type: string
+            lastName:
+              type: string
+          required:
+            - id
+            - firstName
+            - lastName
+        therapyService:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            serviceType:
+              type: string
+              enum:
+                - SPEECH
+                - OCCUPATIONAL
+                - PHYSICAL
+          required:
+            - id
+            - serviceType
+      required:
+        - id
+        - providerId
+        - studentId
+        - therapyServiceId
+        - amount
+        - status
+        - dateIssued
+        - createdAt
+        - updatedAt
+        - deletedAt
+        - provider
+        - student
+        - therapyService
+  parameters: {}
+paths:
+  /users:
+    get:
+      description: Get list of users
+      parameters:
+        - schema:
+            type: string
+          required: false
+          name: name
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: school
+          in: query
+        - schema:
+            type: string
+            enum:
+              - ADMIN
+              - TEACHER
+              - THERAPIST
+              - PROVIDER
+              - SUPERVISOR
+          required: false
+          name: role
+          in: query
+        - schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+          required: false
+          name: status
+          in: query
+        - schema:
+            type: string
+            enum:
+              - name
+              - school
+              - role
+              - status
+            default: name
+          required: false
+          name: sortBy
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
+          required: false
+          name: sortOrder
+          in: query
+        - schema:
+            type: number
+            minimum: 10
+            maximum: 300
+            default: 20
+          required: false
+          name: perPage
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 1
+          required: false
+          name: page
+          in: query
+      responses:
+        "200":
+          description: Object with data and pagination metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                required:
+                  - data
+                  - pagination
+        "400": &a1
+          $ref: "#/components/responses/GenericErrorResponse"
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    post:
+      description: Create a user
+      parameters:
+        - schema:
+            type:
+              - boolean
+              - "null"
+            default: false
+          required: false
+          name: sendInvite
+          in: query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                securityLevel:
+                  type: string
+                  enum:
+                    - FULL_ACCESS
+                    - LIMITED
+                    - READ_ONLY
+                schoolId:
+                  type: string
+                  format: uuid
+                roleId:
+                  type: string
+                  format: uuid
+                phoneNumber:
+                  type:
+                    - string
+                    - "null"
+                status:
+                  type: string
+                  enum:
+                    - ACTIVE
+                    - INACTIVE
+              required:
+                - firstName
+                - lastName
+                - email
+                - securityLevel
+                - schoolId
+                - roleId
+                - phoneNumber
+                - status
+      responses:
+        "204":
+          description: The user has been created (and invited, if chosen) successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /users/{id}:
+    get:
+      description: Get a user
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Object with data containing user information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
+                required:
+                  - data
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    patch:
+      description: Update a user
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                securityLevel:
+                  type: string
+                  enum:
+                    - FULL_ACCESS
+                    - LIMITED
+                    - READ_ONLY
+                schoolId:
+                  type: string
+                  format: uuid
+                roleId:
+                  type: string
+                  format: uuid
+                phoneNumber:
+                  type:
+                    - string
+                    - "null"
+                status:
+                  type: string
+                  enum:
+                    - ACTIVE
+                    - INACTIVE
+      responses:
+        "204":
+          description: The user has been updated successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    delete:
+      description: Delete a user
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "204":
+          description: The user has been deleted successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /roles:
+    get:
+      description: Get a list of roles
+      parameters:
+        - schema:
+            type: number
+            minimum: 1
+            default: 20
+          required: false
+          name: perPage
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 1
+          required: false
+          name: page
+          in: query
+      responses:
+        "200":
+          description: Object with data and pagination metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Role"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                required:
+                  - data
+                  - pagination
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /auth/login:
+    post:
+      description: Authenticate with email and password.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: User with permissions object.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/UserWithPermissions"
+                required:
+                  - data
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /auth/start-password-reset:
+    post:
+      description: Request a password reset token that will be sent over email.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        "204":
+          description: The password reset email will be sent if the user exists.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /auth/reset-password:
+    post:
+      description: Reset a user's password.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                token:
+                  type: string
+                newPassword:
+                  type: string
+              required:
+                - email
+                - token
+                - newPassword
+      responses:
+        "204":
+          description: The password has been reset successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /auth/accept-invite:
+    post:
+      description: Accept an invite and set the account's password.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                token:
+                  type: string
+                newPassword:
+                  type: string
+              required:
+                - email
+                - token
+                - newPassword
+      responses:
+        "204":
+          description: The password has been set successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /schools:
+    get:
+      description: Get a list of schools
+      parameters:
+        - schema:
+            type: string
+          required: false
+          name: name
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: district
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: state
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: contactEmail
+          in: query
+        - schema:
+            type: number
+          required: false
+          name: maxTravelDistance
+          in: query
+        - schema:
+            type: number
+          required: false
+          name: maxStudentsPerTest
+          in: query
+        - schema:
+            type: string
+            enum:
+              - name
+              - district
+              - state
+              - contactEmail
+              - maxTravelDistance
+              - maxStudentsPerTest
+            default: name
+          required: false
+          name: sortBy
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
+          required: false
+          name: sortOrder
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 20
+          required: false
+          name: perPage
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 1
+          required: false
+          name: page
+          in: query
+      responses:
+        "200":
+          description: Object with data and pagination metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/School"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                required:
+                  - data
+                  - pagination
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    post:
+      description: Create a school
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                district:
+                  type: string
+                state:
+                  type: string
+                contactEmail:
+                  type: string
+                  format: email
+                maxTravelDistance:
+                  type: number
+                maxStudentsPerTest:
+                  type: number
+              required:
+                - name
+                - district
+                - state
+                - contactEmail
+                - maxTravelDistance
+                - maxStudentsPerTest
+      responses:
+        "204":
+          description: The school has been created successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /schools/{id}:
+    get:
+      description: Get a school
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Object with data containing school information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/School"
+                required:
+                  - data
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    patch:
+      description: Update a school
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                district:
+                  type: string
+                state:
+                  type: string
+                contactEmail:
+                  type: string
+                  format: email
+                maxTravelDistance:
+                  type: number
+                maxStudentsPerTest:
+                  type: number
+      responses:
+        "204":
+          description: The school has been updated successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    delete:
+      description: Delete a school
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "204":
+          description: The school has been deleted successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /students:
+    get:
+      description: Get a list of students
+      parameters:
+        - schema:
+            type: string
+          required: false
+          name: name
+          in: query
+        - schema:
+            type:
+              - string
+              - "null"
+          required: false
+          name: dob
+          in: query
+        - schema:
+            type:
+              - number
+              - "null"
+          required: false
+          name: gradeLevel
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: school
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: parent
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: studentCode
+          in: query
+        - schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+          required: false
+          name: status
+          in: query
+        - schema:
+            type: string
+            enum:
+              - CONFIRMED
+              - PENDING
+              - RESCHEDULED
+          required: false
+          name: confirmationStatus
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: teacherId
+          in: query
+        - schema:
+            type: string
+            enum:
+              - name
+              - dob
+              - gradeLevel
+              - school
+              - parent
+              - studentCode
+              - status
+              - confirmationStatus
+            default: name
+          required: false
+          name: sortBy
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
+          required: false
+          name: sortOrder
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 20
+          required: false
+          name: perPage
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 1
+          required: false
+          name: page
+          in: query
+      responses:
+        "200":
+          description: Object with data and pagination metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Student"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                required:
+                  - data
+                  - pagination
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    post:
+      description: Create a student
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                dob:
+                  type:
+                    - string
+                    - "null"
+                gradeLevel:
+                  type: number
+                  minimum: 1
+                  maximum: 12
+                schoolId:
+                  type: string
+                  format: uuid
+                parentId:
+                  type: string
+                  format: uuid
+                studentCode:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - ACTIVE
+                    - INACTIVE
+                confirmationStatus:
+                  type: string
+                  enum:
+                    - CONFIRMED
+                    - PENDING
+                    - RESCHEDULED
+                accommodationIds:
+                  type: array
+                  items:
+                    type: string
+                teacherIds:
+                  type: array
+                  items:
+                    type: string
+                testIds:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - firstName
+                - lastName
+                - dob
+                - gradeLevel
+                - schoolId
+                - parentId
+                - studentCode
+                - status
+                - confirmationStatus
+      responses:
+        "204":
+          description: The student has been created successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /students/{id}:
+    get:
+      description: Get a student
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Object with data containing student information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Student"
+                required:
+                  - data
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    patch:
+      description: Update a student
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                dob:
+                  type:
+                    - string
+                    - "null"
+                gradeLevel:
+                  type: number
+                  minimum: 1
+                  maximum: 12
+                schoolId:
+                  type: string
+                  format: uuid
+                parentId:
+                  type: string
+                  format: uuid
+                studentCode:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - ACTIVE
+                    - INACTIVE
+                confirmationStatus:
+                  type: string
+                  enum:
+                    - CONFIRMED
+                    - PENDING
+                    - RESCHEDULED
+                accommodationIds:
+                  type: array
+                  items:
+                    type: string
+                teacherIds:
+                  type: array
+                  items:
+                    type: string
+                testIds:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "204":
+          description: The student has been updated successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    delete:
+      description: Delete a student
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "204":
+          description: The student has been deleted successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /providers:
+    get:
+      description: Get a list of providers
+      parameters:
+        - schema:
+            type: string
+          required: false
+          name: name
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: licenseNumber
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: credentials
+          in: query
+        - schema:
+            type: boolean
+          required: false
+          name: nssEnabled
+          in: query
+        - schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+              - PENDING
+              - SUSPENDED
+          required: false
+          name: status
+          in: query
+        - schema:
+            type: string
+            enum:
+              - HOURLY
+              - FLAT_RATE
+              - PER_DIEM
+          required: false
+          name: serviceFeeStructure
+          in: query
+        - schema:
+            type: string
+            enum:
+              - name
+              - licenseNumber
+              - credentials
+              - nssEnabled
+              - serviceFeeStructure
+              - status
+            default: name
+          required: false
+          name: sortBy
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
+          required: false
+          name: sortOrder
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 20
+          required: false
+          name: perPage
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 1
+          required: false
+          name: page
+          in: query
+      responses:
+        "200":
+          description: Object with data and pagination metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Provider"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                required:
+                  - data
+                  - pagination
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    post:
+      description: Create a provider
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                licenseNumber:
+                  type: string
+                credentials:
+                  type: string
+                signature:
+                  type:
+                    - string
+                    - "null"
+                serviceFeeStructure:
+                  type: string
+                  enum:
+                    - HOURLY
+                    - FLAT_RATE
+                    - PER_DIEM
+                  default: HOURLY
+                nssEnabled:
+                  type: boolean
+                reviewNotes:
+                  type: object
+                  properties:
+                    notes:
+                      type: string
+                  required:
+                    - notes
+                status:
+                  type: string
+                  enum:
+                    - ACTIVE
+                    - INACTIVE
+                    - PENDING
+                    - SUSPENDED
+                  default: ACTIVE
+              required:
+                - userId
+                - licenseNumber
+                - credentials
+                - signature
+                - nssEnabled
+                - reviewNotes
+      responses:
+        "204":
+          description: The provider has been created successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /providers/{id}:
+    get:
+      description: Get a provider
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Object with data containing provider information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Provider"
+                required:
+                  - data
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    patch:
+      description: Update a provider
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                licenseNumber:
+                  type: string
+                credentials:
+                  type: string
+                signature:
+                  type:
+                    - string
+                    - "null"
+                serviceFeeStructure:
+                  type: string
+                  enum:
+                    - HOURLY
+                    - FLAT_RATE
+                    - PER_DIEM
+                  default: HOURLY
+                nssEnabled:
+                  type: boolean
+                reviewNotes:
+                  type: object
+                  properties:
+                    notes:
+                      type: string
+                  required:
+                    - notes
+                status:
+                  type: string
+                  enum:
+                    - ACTIVE
+                    - INACTIVE
+                    - PENDING
+                    - SUSPENDED
+                  default: ACTIVE
+      responses:
+        "204":
+          description: The provider has been updated successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    delete:
+      description: Delete a provider
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "204":
+          description: The provider has been deleted successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /therapists:
+    get:
+      description: Get a list of therapists
+      parameters:
+        - schema:
+            type: string
+          required: false
+          name: disciplines
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: licenseNumber
+          in: query
+        - schema:
+            type:
+              - number
+              - "null"
+          required: false
+          name: medicaidNationalProviderId
+          in: query
+        - schema:
+            type:
+              - number
+              - "null"
+          required: false
+          name: stateMedicaidProviderId
+          in: query
+        - schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+              - PENDING
+          required: false
+          name: status
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: name
+          in: query
+        - schema:
+            type: string
+            enum:
+              - disciplines
+              - licenseNumber
+              - medicaidNationalProviderId
+              - stateMedicaidProviderId
+              - status
+              - name
+            default: status
+          required: false
+          name: sortBy
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
+          required: false
+          name: sortOrder
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 20
+          required: false
+          name: perPage
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 1
+          required: false
+          name: page
+          in: query
+      responses:
+        "200":
+          description: Object with data and pagination metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Therapist"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                required:
+                  - data
+                  - pagination
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    post:
+      description: Create a therapist
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                disciplines:
+                  type: string
+                licenseNumber:
+                  type: string
+                medicaidNationalProviderId:
+                  type: number
+                socialSecurity:
+                  type: string
+                stateMedicaidProviderId:
+                  type: number
+                status:
+                  type: string
+                  enum:
+                    - ACTIVE
+                    - INACTIVE
+                    - PENDING
+                  default: PENDING
+                userId:
+                  type: string
+                  format: uuid
+              required:
+                - disciplines
+                - licenseNumber
+                - medicaidNationalProviderId
+                - socialSecurity
+                - stateMedicaidProviderId
+                - userId
+      responses:
+        "204":
+          description: The therapist has been created successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /therapists/{id}:
+    get:
+      description: Get a therapist
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Object with data containing therapist information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Therapist"
+                required:
+                  - data
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    patch:
+      description: Update a therapist
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                disciplines:
+                  type: string
+                licenseNumber:
+                  type: string
+                medicaidNationalProviderId:
+                  type: number
+                socialSecurity:
+                  type: string
+                stateMedicaidProviderId:
+                  type: number
+                status:
+                  type: string
+                  enum:
+                    - ACTIVE
+                    - INACTIVE
+                    - PENDING
+                  default: PENDING
+                userId:
+                  type: string
+                  format: uuid
+      responses:
+        "204":
+          description: The therapist has been updated successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    delete:
+      description: Delete a therapist
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "204":
+          description: The therapist has been deleted successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /therapy-services:
+    get:
+      description: Get a list of therapy services
+      parameters:
+        - schema:
+            type: string
+          required: false
+          name: student
+          in: query
+        - schema:
+            type: string
+            format: uuid
+          required: false
+          name: studentId
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: provider
+          in: query
+        - schema:
+            type: string
+            enum:
+              - SPEECH
+              - OCCUPATIONAL
+              - PHYSICAL
+          required: false
+          name: serviceType
+          in: query
+        - schema:
+            type: string
+            enum:
+              - SCHEDULED
+              - COMPLETED
+              - MISSED
+          required: false
+          name: status
+          in: query
+        - schema:
+            type:
+              - string
+              - "null"
+          required: false
+          name: serviceBeginDate
+          in: query
+        - schema:
+            type:
+              - string
+              - "null"
+          required: false
+          name: sessionDate
+          in: query
+        - schema:
+            type: string
+            enum:
+              - VIRTUAL
+              - IN_PERSON
+          required: false
+          name: deliveryMode
+          in: query
+        - schema:
+            type:
+              - string
+              - "null"
+          required: false
+          name: nextMeetingDate
+          in: query
+        - schema:
+            type: string
+            enum:
+              - student
+              - provider
+              - serviceType
+              - status
+              - serviceBeginDate
+              - sessionDate
+              - deliveryMode
+              - nextMeetingDate
+            default: provider
+          required: false
+          name: sortBy
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          required: false
+          name: sortOrder
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 20
+          required: false
+          name: perPage
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 1
+          required: false
+          name: page
+          in: query
+      responses:
+        "200":
+          description: Object with data and pagination metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TherapyService"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                required:
+                  - data
+                  - pagination
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    post:
+      description: Create a therapy service
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                studentId:
+                  type: string
+                  format: uuid
+                providerId:
+                  type: string
+                  format: uuid
+                serviceType:
+                  type: string
+                  enum:
+                    - SPEECH
+                    - OCCUPATIONAL
+                    - PHYSICAL
+                status:
+                  type: string
+                  enum:
+                    - SCHEDULED
+                    - COMPLETED
+                    - MISSED
+                  default: SCHEDULED
+                serviceBeginDate:
+                  type:
+                    - string
+                    - "null"
+                sessionDate:
+                  type:
+                    - string
+                    - "null"
+                sessionNotes:
+                  type: string
+                deliveryMode:
+                  type: string
+                  enum:
+                    - VIRTUAL
+                    - IN_PERSON
+                goalTracking: {}
+                ieps: {}
+                nextMeetingDate:
+                  type:
+                    - string
+                    - "null"
+              required:
+                - studentId
+                - providerId
+                - serviceType
+                - serviceBeginDate
+                - sessionDate
+                - sessionNotes
+                - deliveryMode
+                - nextMeetingDate
+      responses:
+        "204":
+          description: The therapy service has been created successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /therapy-services/{id}:
+    get:
+      description: Get a therapy service
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Object with data containing therapy service information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TherapyService"
+                required:
+                  - data
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    patch:
+      description: Update a therapy service
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                studentId:
+                  type: string
+                  format: uuid
+                providerId:
+                  type: string
+                  format: uuid
+                serviceType:
+                  type: string
+                  enum:
+                    - SPEECH
+                    - OCCUPATIONAL
+                    - PHYSICAL
+                status:
+                  type: string
+                  enum:
+                    - SCHEDULED
+                    - COMPLETED
+                    - MISSED
+                  default: SCHEDULED
+                serviceBeginDate:
+                  type:
+                    - string
+                    - "null"
+                sessionDate:
+                  type:
+                    - string
+                    - "null"
+                sessionNotes:
+                  type: string
+                deliveryMode:
+                  type: string
+                  enum:
+                    - VIRTUAL
+                    - IN_PERSON
+                goalTracking: {}
+                ieps: {}
+                nextMeetingDate:
+                  type:
+                    - string
+                    - "null"
+      responses:
+        "204":
+          description: The therapy service has been updated successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    delete:
+      description: Delete a therapy service
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "204":
+          description: The therapy service has been deleted successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /reports:
+    get:
+      description: Get a list of reports
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - PROGRESS
+              - ATTENDANCE
+              - BILLING
+              - ELIGIBILITY
+          required: false
+          name: reportType
+          in: query
+        - schema:
+            type: string
+            format: uuid
+          required: false
+          name: therapyServiceId
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: schoolName
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: studentName
+          in: query
+        - schema:
+            type: string
+            enum:
+              - SPEECH
+              - OCCUPATIONAL
+              - PHYSICAL
+          required: false
+          name: therapyServiceType
+          in: query
+        - schema:
+            type:
+              - string
+              - "null"
+          required: false
+          name: createdAt
+          in: query
+        - schema:
+            type: string
+            enum:
+              - reportType
+              - createdAt
+              - updatedAt
+              - content
+              - schoolName
+              - studentName
+              - therapyServiceType
+            default: createdAt
+          required: false
+          name: sortBy
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          required: false
+          name: sortOrder
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 20
+          required: false
+          name: perPage
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 1
+          required: false
+          name: page
+          in: query
+      responses:
+        "200":
+          description: Object with data and pagination metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Report"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                required:
+                  - data
+                  - pagination
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    post:
+      description: Create a report
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schoolId:
+                  type: string
+                  format: uuid
+                studentId:
+                  type: string
+                  format: uuid
+                therapyServiceId:
+                  type: string
+                  format: uuid
+                reportType:
+                  type: string
+                  enum:
+                    - PROGRESS
+                    - ATTENDANCE
+                    - BILLING
+                    - ELIGIBILITY
+                content:
+                  type: string
+                createdAt:
+                  type: string
+                  default: &a2 2025-03-27T21:45:09.629Z
+              required:
+                - schoolId
+                - studentId
+                - therapyServiceId
+                - reportType
+                - content
+      responses:
+        "201":
+          description: The report has been created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                required:
+                  - id
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /reports/{id}:
+    get:
+      description: Get a report
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Object with data containing report information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Report"
+                required:
+                  - data
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    patch:
+      description: Update a report
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schoolId:
+                  type: string
+                  format: uuid
+                studentId:
+                  type: string
+                  format: uuid
+                therapyServiceId:
+                  type: string
+                  format: uuid
+                reportType:
+                  type: string
+                  enum:
+                    - PROGRESS
+                    - ATTENDANCE
+                    - BILLING
+                    - ELIGIBILITY
+                content:
+                  type: string
+                createdAt:
+                  type: string
+                  default: *a2
+      responses:
+        "204":
+          description: The report has been updated successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    delete:
+      description: Delete a report
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "204":
+          description: The report has been deleted successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /invoices:
+    get:
+      description: Get a list of invoices
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - PENDING
+              - PAID
+              - DECLINED
+          required: false
+          name: status
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: providerName
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: studentName
+          in: query
+        - schema:
+            type: string
+            enum:
+              - SPEECH
+              - OCCUPATIONAL
+              - PHYSICAL
+          required: false
+          name: therapyServiceType
+          in: query
+        - schema:
+            type:
+              - string
+              - "null"
+          required: false
+          name: dateIssuedFrom
+          in: query
+        - schema:
+            type:
+              - string
+              - "null"
+          required: false
+          name: dateIssuedTo
+          in: query
+        - schema:
+            type: string
+            enum:
+              - status
+              - amount
+              - dateIssued
+              - createdAt
+              - updatedAt
+              - providerName
+              - studentName
+              - therapyServiceType
+            default: dateIssued
+          required: false
+          name: sortBy
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          required: false
+          name: sortOrder
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 20
+          required: false
+          name: perPage
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            default: 1
+          required: false
+          name: page
+          in: query
+      responses:
+        "200":
+          description: Object with data and pagination metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Invoice"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                required:
+                  - data
+                  - pagination
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    post:
+      description: Create an invoice
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                providerId:
+                  type: string
+                  format: uuid
+                studentId:
+                  type: string
+                  format: uuid
+                therapyServiceId:
+                  type: string
+                  format: uuid
+                amount:
+                  type: number
+                status:
+                  type: string
+                  enum:
+                    - PENDING
+                    - PAID
+                    - DECLINED
+                  default: PENDING
+                dateIssued:
+                  type:
+                    - string
+                    - "null"
+                  default: 2025-03-27T21:45:09.716Z
+              required:
+                - providerId
+                - studentId
+                - therapyServiceId
+                - amount
+      responses:
+        "201":
+          description: The invoice has been created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                required:
+                  - id
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+  /invoices/{id}:
+    get:
+      description: Get an invoice
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "200":
+          description: Object with data containing invoice information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
+                required:
+                  - data
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    patch:
+      description: Update an invoice
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                providerId:
+                  type: string
+                  format: uuid
+                studentId:
+                  type: string
+                  format: uuid
+                therapyServiceId:
+                  type: string
+                  format: uuid
+                amount:
+                  type: number
+                status:
+                  type: string
+                  enum:
+                    - PENDING
+                    - PAID
+                    - DECLINED
+                  default: PENDING
+                dateIssued:
+                  type:
+                    - string
+                    - "null"
+                  default: 2025-03-27T21:45:09.716Z
+      responses:
+        "204":
+          description: The invoice has been updated successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+    delete:
+      description: Delete an invoice
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+      responses:
+        "204":
+          description: The invoice has been deleted successfully.
+        "400": *a1
+        "401": *a1
+        "403": *a1
+        "404": *a1
+        "500": *a1
+webhooks: {}

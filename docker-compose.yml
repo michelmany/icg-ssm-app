@@ -1,0 +1,35 @@
+version: "3"
+services:
+  database:
+    image: postgres:latest
+    container_name: ssm_database
+    ports:
+      - "15432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: my_database
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  test_database:
+    image: postgres:latest
+    container_name: ssm_test_database
+    ports:
+      - "15433:5432" # Different port to avoid conflicts
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: test_database
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
+
+  mailhog:
+    image: jcalonso/mailhog
+    container_name: ssm_mailhog
+    ports:
+      - "1026:1025" # SMTP port
+      - "8026:8025" # Web UI port
+volumes:
+  postgres_data:
+  test_postgres_data:

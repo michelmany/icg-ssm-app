@@ -1,0 +1,589 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  TEACHER
+  THERAPIST
+  PROVIDER
+  SUPERVISOR
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum RoleHierarchy {
+  ADMIN
+  TEACHER
+  THERAPIST
+  PROVIDER
+  SUPERVISOR
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ConfirmationStatus {
+  CONFIRMED
+  PENDING
+  RESCHEDULED
+}
+
+enum ServiceType {
+  SPEECH
+  OCCUPATIONAL
+  PHYSICAL
+}
+
+enum ServiceDiscipline {
+  GENERAL
+  SPECIALIZED
+  INTENSIVE
+}
+
+enum TherapyStatus {
+  SCHEDULED
+  COMPLETED
+  MISSED
+}
+
+enum TherapyDeliveryMode {
+  VIRTUAL
+  IN_PERSON
+}
+
+enum ServiceFeeStructure {
+  HOURLY
+  FLAT_RATE
+  PER_DIEM
+}
+
+enum ProviderStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+}
+
+enum TeacherServiceStatus {
+  ACTIVE
+  COMPLETED
+  PENDING
+}
+
+enum EquipmentReferralStatus {
+  PENDING
+  APPROVED
+  DENIED
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  DECLINED
+}
+
+enum ReportType {
+  PROGRESS
+  ATTENDANCE
+  BILLING
+  ELIGIBILITY
+}
+
+enum MessageType {
+  EMAIL
+  SMS
+  SYSTEM_NOTIFICATION
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  FAILED
+}
+
+enum ReadStatus {
+  UNREAD
+  READ
+  ACKNOWLEDGED
+}
+
+enum ReceiverType {
+  USER
+  STUDENT
+}
+
+enum TherapistStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+model User {
+  id            String         @id @default(uuid())
+  firstName     String
+  lastName      String
+  email         String         @unique
+  passwordHash  String
+  role          Role?          @relation(fields: [roleId], references: [id])
+  tokens        UserToken[]
+  roleId        String?
+  roleModel     String?
+  securityLevel SecurityLevel?
+  status        UserStatus
+  permissions   Json?
+  schoolId      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+  phoneNumber   String?
+  roleHierarchy RoleHierarchy?
+  createdById   String?
+  lastLogin     DateTime?
+
+  // Relations
+  school            School?             @relation(fields: [schoolId], references: [id])
+  createdBy         User?               @relation("UserCreatedBy", fields: [createdById], references: [id])
+  createdUsers      User[]              @relation("UserCreatedBy")
+  Student           Student[]
+  Provider          Provider[]
+  TeacherService    TeacherService[]
+  EquipmentReferral EquipmentReferral[]
+  TrainingModule    TrainingModule[]
+  Contract          Contract[]
+  Contact           Contact[]
+  Document          Document[]
+  sentMessages      Communication[]     @relation("SenderMessages")
+  receivedMessages  Communication[]     @relation("ReceiverMessages")
+  ActivityLog       ActivityLog[]
+  teachingStudents  StudentTeacher[]
+  therapist         Therapist?
+}
+
+model Student {
+  id                 String             @id @default(uuid())
+  firstName          String
+  lastName           String
+  dob                DateTime
+  gradeLevel         Int
+  schoolId           String
+  parentId           String?
+  status             StudentStatus
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  deletedAt          DateTime?
+  studentCode        String             @unique
+  confirmationStatus ConfirmationStatus
+
+  // Relations
+  school            School                  @relation(fields: [schoolId], references: [id])
+  parent            User?                   @relation(fields: [parentId], references: [id])
+  TherapyService    TherapyService[]
+  TeacherService    TeacherService[]
+  EquipmentReferral EquipmentReferral[]
+  Invoice           Invoice[]
+  Report            Report[]
+  receivedMessages  Communication[]         @relation("StudentMessages")
+  teachers          StudentTeacher[]
+  testAssignments   StudentTestAssignment[]
+  accommodations    StudentAccommodation[]
+}
+
+model StudentTeacher {
+  id        String   @id @default(uuid())
+  studentId String
+  teacherId String
+  createdAt DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id])
+  teacher User    @relation(fields: [teacherId], references: [id])
+
+  @@unique([studentId, teacherId])
+}
+
+model StudentTestAssignment {
+  id         String   @id @default(uuid())
+  studentId  String
+  testId     String
+  assignedAt DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId, testId])
+}
+
+model School {
+  id                 String    @id @default(uuid())
+  name               String
+  district           String
+  state              String
+  contactEmail       String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+  maxTravelDistance  Int?
+  maxStudentsPerTest Int?
+
+  // Relations
+  users    User[]
+  students Student[]
+  Report   Report[]
+}
+
+model TherapyService {
+  id               String              @id @default(uuid())
+  studentId        String
+  providerId       String
+  serviceType      ServiceType
+  status           TherapyStatus
+  serviceBeginDate DateTime
+  sessionDate      DateTime
+  sessionNotes     String
+  deliveryMode     TherapyDeliveryMode
+  goalTracking     Json?
+  ieps             Json?
+  nextMeetingDate  DateTime?
+  deletedAt        DateTime?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  // Relations
+  student        Student          @relation(fields: [studentId], references: [id])
+  provider       Provider         @relation(fields: [providerId], references: [id])
+  TeacherService TeacherService[]
+  Invoice        Invoice[]
+  Report         Report[]
+}
+
+model Provider {
+  id                  String              @id @default(uuid())
+  userId              String
+  licenseNumber       String
+  credentials         String
+  signature           String?
+  serviceFeeStructure ServiceFeeStructure
+  nssEnabled          Boolean
+  reviewNotes         Json
+  status              ProviderStatus
+  deletedAt           DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  // Relations
+  user           User               @relation(fields: [userId], references: [id])
+  TherapyService TherapyService[]
+  Invoice        Invoice[]
+  Contract       Contract[]
+  Contact        Contact[]
+  Document       Document[]
+  documents      ProviderDocument[]
+  contracts      ProviderContract[]
+  contacts       ProviderContact[]
+}
+
+model ProviderDocument {
+  id         String @id @default(uuid())
+  providerId String
+  documentId String
+
+  provider Provider @relation(fields: [providerId], references: [id])
+  document Document @relation(fields: [documentId], references: [id])
+
+  @@unique([providerId, documentId])
+}
+
+model ProviderContract {
+  id         String @id @default(uuid())
+  providerId String
+  contractId String
+
+  provider Provider @relation(fields: [providerId], references: [id])
+  contract Contract @relation(fields: [contractId], references: [id])
+
+  @@unique([providerId, contractId])
+}
+
+model ProviderContact {
+  id         String @id @default(uuid())
+  providerId String
+  contactId  String
+
+  provider Provider @relation(fields: [providerId], references: [id])
+  contact  Contact  @relation(fields: [contactId], references: [id])
+
+  @@unique([providerId, contactId])
+}
+
+model TeacherService {
+  id                String               @id @default(uuid())
+  userId            String
+  studentId         String
+  therapyServiceId  String
+  progressNotes     String
+  status            TeacherServiceStatus
+  serviceDiscipline ServiceDiscipline
+  serviceType       ServiceType
+  deliveryMode      TherapyDeliveryMode
+  aacRequired       Boolean
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  deletedAt         DateTime?
+
+  // Relations
+  teacher        User           @relation(fields: [userId], references: [id])
+  student        Student        @relation(fields: [studentId], references: [id])
+  therapyService TherapyService @relation(fields: [therapyServiceId], references: [id])
+}
+
+model EquipmentReferral {
+  id              String                  @id @default(uuid())
+  teacherId       String
+  studentId       String
+  equipmentNeeded String
+  status          EquipmentReferralStatus
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  deletedAt       DateTime?
+
+  // Relations
+  teacher User    @relation(fields: [teacherId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+}
+
+model Invoice {
+  id               String        @id @default(uuid())
+  providerId       String
+  studentId        String
+  therapyServiceId String
+  amount           Decimal
+  status           InvoiceStatus
+  dateIssued       DateTime
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  deletedAt        DateTime?
+
+  // Relations
+  provider       Provider       @relation(fields: [providerId], references: [id])
+  student        Student        @relation(fields: [studentId], references: [id])
+  therapyService TherapyService @relation(fields: [therapyServiceId], references: [id])
+}
+
+model Report {
+  id               String     @id @default(uuid())
+  schoolId         String
+  studentId        String
+  therapyServiceId String
+  reportType       ReportType
+  content          String
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  deletedAt        DateTime?
+
+  // Relations
+  school         School         @relation(fields: [schoolId], references: [id])
+  student        Student        @relation(fields: [studentId], references: [id])
+  therapyService TherapyService @relation(fields: [therapyServiceId], references: [id])
+}
+
+model TrainingModule {
+  id          String    @id @default(uuid())
+  teacherId   String
+  moduleName  String
+  completedAt DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  teacher User @relation(fields: [teacherId], references: [id])
+}
+
+model Contract {
+  id          String    @id @default(uuid())
+  contract    String
+  providerId  String
+  createdById String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  provider      Provider           @relation(fields: [providerId], references: [id])
+  createdBy     User               @relation(fields: [createdById], references: [id])
+  providerLinks ProviderContract[]
+}
+
+model Contact {
+  id          String    @id @default(uuid())
+  providerId  String
+  firstName   String
+  lastName    String
+  cellPhone   String
+  workPhone   String
+  email       String
+  createdById String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  provider      Provider          @relation(fields: [providerId], references: [id])
+  createdBy     User              @relation(fields: [createdById], references: [id])
+  providerLinks ProviderContact[]
+}
+
+model Therapist {
+  id                         String          @id @default(uuid())
+  userId                     String          @unique
+  disciplines                String
+  licenseNumber              String
+  medicaidNationalProviderId Int
+  socialSecurity             String
+  stateMedicaidProviderId    Int
+  status                     TherapistStatus
+  createdAt                  DateTime        @default(now())
+  updatedAt                  DateTime        @updatedAt
+  deletedAt                  DateTime?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Document {
+  id          String    @id @default(uuid())
+  providerId  String
+  document    String
+  createdById String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  provider      Provider           @relation(fields: [providerId], references: [id])
+  createdBy     User               @relation(fields: [createdById], references: [id])
+  providerLinks ProviderDocument[]
+}
+
+model Accommodation {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  students StudentAccommodation[]
+}
+
+model StudentAccommodation {
+  id              String   @id @default(uuid())
+  studentId       String
+  accommodationId String
+  details         Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  student       Student       @relation(fields: [studentId], references: [id])
+  accommodation Accommodation @relation(fields: [accommodationId], references: [id])
+
+  @@unique([studentId, accommodationId])
+}
+
+model Communication {
+  id             String        @id @default(uuid()) // UUID as primary key
+  senderId       String
+  receiverId     String
+  receiverType   ReceiverType
+  messageType    MessageType
+  messageContent String
+  status         MessageStatus
+  createdAt      DateTime      @default(now())
+  isAutomated    Boolean
+  readStatus     ReadStatus
+  readTime       DateTime?
+  deletedAt      DateTime?
+
+  // Relations
+  sender          User     @relation("SenderMessages", fields: [senderId], references: [id])
+  userReceiver    User?    @relation("ReceiverMessages", fields: [receiverId], references: [id], map: "Communication_UserReceiver_FK")
+  studentReceiver Student? @relation("StudentMessages", fields: [receiverId], references: [id], map: "Communication_StudentReceiver_FK")
+
+  @@index([receiverId, receiverType])
+}
+
+enum SecurityLevel {
+  FULL_ACCESS
+  LIMITED
+  READ_ONLY
+}
+
+model Role {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  users       User[]
+  permissions RolePermission[]
+}
+
+model Permission {
+  id   String @id @default(uuid())
+  name String @unique
+
+  roles RolePermission[]
+}
+
+model RolePermission {
+  id           String @id @default(uuid())
+  roleId       String
+  permissionId String
+
+  // Relations
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([roleId, permissionId])
+}
+
+enum UserTokenType {
+  PASSWORD_RESET
+  INVITATION
+}
+
+model UserToken {
+  id    String @id @default(uuid())
+  token String
+
+  type UserTokenType
+
+  userId String
+
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  generatedBy User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, type], name: "userIdTokenType")
+}
+
+model ActivityLog {
+  id        String    @id @default(uuid())
+  userId    String
+  action    String
+  subjectId String?
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+}

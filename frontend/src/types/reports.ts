@@ -1,0 +1,6 @@
+export enum ReportType {
+    PROGRESS = "PROGRESS",
+    ATTENDANCE = "ATTENDANCE",
+    BILLING = "BILLING",
+    ELIGIBILITY = "ELIGIBILITY",
+}
