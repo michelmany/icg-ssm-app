@@ -1,3 +1,5 @@
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen?style=flat-square)
+
 # ICG School Services Manager
 
 ## Overview
